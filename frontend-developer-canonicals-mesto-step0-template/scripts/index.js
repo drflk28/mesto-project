@@ -23,9 +23,8 @@ function createCard({ name, link }) {
     cardTitle.textContent = name;
 
     // Удаление карточки
-    deleteButton.addEventListener('click', (evt) => {
-        const cardToDelete = evt.target.closest('.card'); // Находим родительскую карточку
-        cardToDelete.remove(); // Удаляем её
+    deleteButton.addEventListener('click', () => {
+        deleteCard(cardElement);
     });
 
     // Лайк карточки
@@ -35,17 +34,22 @@ function createCard({ name, link }) {
 
     // Открытие изображения в поп-апе
     cardImage.addEventListener('click', () => {
-        const popupImage = imagePopup.querySelector('.popup__image');
-        const popupCaption = imagePopup.querySelector('.popup__caption');
-
-        popupImage.src = link;
-        popupImage.alt = name;
-        popupCaption.textContent = name;
-
-        openModal(imagePopup);
+        openImagePopup(link, name);
     });
 
     return cardElement;
+}
+
+// Открытие изображения в поп-апе
+function openImagePopup(link, name) {
+    const popupImage = imagePopup.querySelector('.popup__image');
+    const popupCaption = imagePopup.querySelector('.popup__caption');
+
+    popupImage.src = link;
+    popupImage.alt = name;
+    popupCaption.textContent = name;
+
+    openModal(imagePopup);
 }
 
 // @todo: Вывести карточки на страницу
@@ -109,6 +113,9 @@ function handleProfileFormSubmit(evt) {
 
     // Закрываем поп-ап
     closeModal(profilePopup);
+
+    // Сбрасываем форму
+    profileFormElement.reset();
 }
 
 // Привязываем обработчик к событию submit
@@ -142,6 +149,9 @@ function handleCardFormSubmit(evt) {
 
     // Закрываем поп-ап
     closeModal(cardPopup);
+
+    // Сбрасываем форму
+    cardFormElement.reset();
 }
 
 // Привязываем обработчик к событию submit
