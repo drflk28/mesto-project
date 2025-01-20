@@ -260,3 +260,31 @@ document.querySelector('.profile__edit-button').addEventListener('click', () => 
     const popup = document.querySelector('.popup_type_edit');
     openPopup(popup);
 });
+
+//Получение карточек с сервера
+function getInitialCards() {
+    return request('/cards', {
+        method: 'GET',
+    });
+}
+getInitialCards().then((cards) => {
+    renderCards(cards);
+});
+
+//Получение инфы о пользователе
+function getUserInfo() {
+    return request('/users/me', {
+        method: 'GET',
+    });
+}
+getUserInfo()
+    .then((userData) => {
+        profileName.textContent = userData.name;
+        profileJob.textContent = userData.about;
+    })
+    .catch((err) => {
+        console.error(err);
+        alert('Не удалось загрузить данные пользователя. Попробуйте позже.');
+    });
+
+
