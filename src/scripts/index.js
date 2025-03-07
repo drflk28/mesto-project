@@ -11,6 +11,7 @@ function deleteCard(cardElement) {
 }
 
 // @todo: Функция создания карточки
+// Функция создания карточки
 function createCard({ name, link }) {
     const cardElement = cardTemplate.cloneNode(true);
 
@@ -18,10 +19,13 @@ function createCard({ name, link }) {
     const cardTitle = cardElement.querySelector('.card__title');
     const deleteButton = cardElement.querySelector('.card__delete-button');
     const likeButton = cardElement.querySelector('.card__like-button');
+    const likeCount = cardElement.querySelector('.card__like-count'); // Получаем элемент для количества лайков
 
     cardImage.src = link;
     cardImage.alt = name;
     cardTitle.textContent = name;
+
+    let likeCounter = 0; // Изначально количество лайков равно 0
 
     // Удаление карточки
     deleteButton.addEventListener('click', () => {
@@ -31,6 +35,15 @@ function createCard({ name, link }) {
     // Лайк карточки
     likeButton.addEventListener('click', () => {
         likeButton.classList.toggle('card__like-button_is-active');
+
+        if (likeButton.classList.contains('card__like-button_is-active')) {
+            likeCounter++;
+        } else {
+            likeCounter--;
+        }
+
+        // Обновление отображаемого количества лайков
+        likeCount.textContent = likeCounter;
     });
 
     // Открытие изображения в поп-апе
@@ -40,6 +53,7 @@ function createCard({ name, link }) {
 
     return cardElement;
 }
+
 
 // Открытие изображения в поп-апе
 function openImagePopup(link, name) {
@@ -213,27 +227,6 @@ cardAddButton.addEventListener('click', () => {
     openModal(cardPopup);
 });
 
-// Обработчик отправки формы добавления карточки
-function handleCardFormSubmit(evt) {
-    evt.preventDefault();
-
-    // Получаем данные из полей формы
-    const cardData = {
-        name: cardNameInput.value,
-        link: cardLinkInput.value,
-    };
-
-    // Создаём новую карточку и добавляем её в начало списка
-    const cardElement = createCard(cardData);
-    placesList.prepend(cardElement);
-
-    // Закрываем поп-ап
-    closeModal(cardPopup);
-
-    // Сбрасываем форму
-    cardFormElement.reset();
-    toggleCardButtonState(); // Инициализация состояния кнопки после сброса формы
-}
 
 // Привязываем обработчик к событию submit
 cardFormElement.addEventListener('submit', handleCardFormSubmit);
