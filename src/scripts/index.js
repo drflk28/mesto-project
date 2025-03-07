@@ -316,4 +316,34 @@ getUserInfo()
         alert('Не удалось загрузить данные пользователя. Попробуйте позже.');
     });
 
+function handleCardFormSubmit(evt) {
+    evt.preventDefault();
 
+    // Получаем данные из полей формы
+    const cardData = {
+        name: cardNameInput.value,
+        link: cardLinkInput.value,
+    };
+
+    // Отправка данных на сервер
+    request('/cards', {
+        method: 'POST',
+        body: JSON.stringify(cardData)
+    })
+        .then((newCard) => {
+            // Создаём новую карточку и добавляем её в начало списка
+            const cardElement = createCard(newCard);
+            placesList.prepend(cardElement);
+
+            // Закрываем поп-ап
+            closeModal(cardPopup);
+
+            // Сбрасываем форму
+            cardFormElement.reset();
+            toggleCardButtonState(); // Инициализация состояния кнопки после сброса формы
+        })
+        .catch((err) => {
+            console.error(err);
+            alert('Не удалось добавить карточку. Попробуйте позже.');
+        });
+}
