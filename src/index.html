@@ -15,8 +15,13 @@
   </header>
   <main class="content">
     <section class="profile page__section">
-      <div class="profile__image" style="background-image: url('images/avatar.jpg');"></div>
-      <div class="profile__info">
+        <div class="profile__image-container">
+            <div class="profile__image" style="background-image: url('images/avatar.jpg');"></div>
+            <div class="profile__image-overlay">
+                <button class="profile__edit-avatar-button" type="button"></button>
+            </div>
+        </div>
+        <div class="profile__info">
         <h1 class="profile__title">Жак-Ив Кусто</h1>
         <button class="profile__edit-button" type="button"></button>
         <p class="profile__description">Исследователь океана</p>
@@ -105,6 +110,27 @@
       <p class="popup__caption"></p>
     </div>
   </div>
+    <div class="popup popup_type_edit-avatar">
+        <div class="popup__content">
+            <button type="button" class="popup__close"></button>
+            <h3 class="popup__title">Редактировать аватар</h3>
+            <form class="popup__form" name="edit-avatar" novalidate>
+                <div class="popup__input-container">
+                    <input
+                            type="url"
+                            name="avatar"
+                            class="popup__input popup__input_type_avatar"
+                            placeholder="Ссылка на новый аватар"
+                            required
+                    />
+                    <span class="popup__error" id="avatar-error"></span>
+                </div>
+                <button type="submit" class="button popup__button popup__button_disabled" disabled>Сохранить</button>
+            </form>
+        </div>
+    </div>
+
+
 </div>
 <script src="scripts/api.js"></script>\
 <script src="scripts/index.js" defer></script>

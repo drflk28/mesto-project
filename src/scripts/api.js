@@ -1,5 +1,5 @@
-const token = 'e7ed7294-3c81-43c8-872d-a5a1eadbb865'; // Замените на ваш реальный токен
-const cohortId = 'apf-cohort-202'; // Укажите свой идентификатор группы
+const token = 'e7ed7294-3c81-43c8-872d-a5a1eadbb865';
+const cohortId = 'apf-cohort-202';
 const apiBaseUrl = `https://nomoreparties.co/v1/${cohortId}`;
 
 function request(endpoint, options) {

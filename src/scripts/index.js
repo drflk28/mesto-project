@@ -395,3 +395,84 @@ function updateLikeState(updatedCard) {
     });
 }
 
+const avatarEditButton = document.querySelector('.profile__edit-avatar-button');
+const avatarPopup = document.querySelector('.popup_type_edit-avatar');
+const avatarInput = avatarPopup.querySelector('.popup__input_type_avatar');
+const avatarForm = avatarPopup.querySelector('.popup__form');
+const avatarSubmitButton = avatarPopup.querySelector('.popup__button');
+const profileImage = document.querySelector('.profile__image');
+
+// Обработчик открытия поп-апа редактирования аватара
+avatarEditButton.addEventListener('click', () => {
+    // Заполняем поле ввода текущей ссылкой на аватар
+    avatarInput.value = profileImage.style.backgroundImage.slice(5, -2); // Получаем ссылку из background-image
+    openModal(avatarPopup);
+});
+
+// Проверка валидности формы редактирования аватара
+function checkAvatarFormValidity() {
+    return avatarForm.checkValidity();
+}
+
+// Переключение состояния кнопки "Сохранить"
+function toggleAvatarButtonState() {
+    if (checkAvatarFormValidity()) {
+        avatarSubmitButton.classList.remove('popup__button_disabled');
+        avatarSubmitButton.disabled = false;
+    } else {
+        avatarSubmitButton.classList.add('popup__button_disabled');
+        avatarSubmitButton.disabled = true;
+    }
+}
+
+// Привязываем обработчик к полю ввода
+avatarInput.addEventListener('input', toggleAvatarButtonState);
+
+// Обработчик отправки формы редактирования аватара
+avatarForm.addEventListener('submit', (evt) => {
+    evt.preventDefault();
+
+    const updatedAvatarData = {
+        avatar: avatarInput.value,
+    };
+
+    // Отправка PATCH-запроса на сервер для обновления аватара
+    request('/users/me/avatar', {
+        method: 'PATCH',
+        body: JSON.stringify(updatedAvatarData),
+    })
+        .then((userData) => {
+            // Обновляем аватар на странице
+            profileImage.style.backgroundImage = `url(${userData.avatar})`;
+            closeModal(avatarPopup);
+        })
+        .catch((err) => {
+            console.error(err);
+            alert('Не удалось обновить аватар. Попробуйте позже.');
+        });
+});
+
+// Обработчик отправки формы редактирования аватара
+function handleAvatarFormSubmit(evt) {
+    evt.preventDefault();
+
+    const formData = new FormData();
+    formData.append('avatar', avatarInput.files[0]); // Получаем файл из input
+
+    request('/users/me/avatar', {
+        method: 'PATCH',
+        body: formData
+    })
+        .then((userData) => {
+            // Обновляем аватар на странице
+            document.querySelector('.profile__avatar').src = userData.avatar;
+            closeModal(avatarPopup); // Закрытие поп-апа
+        })
+        .catch((err) => {
+            console.error(err);
+            alert('Не удалось обновить аватар. Попробуйте позже.');
+        });
+}
+
+// Привязка обработчика к форме редактирования аватара
+avatarForm.addEventListener('submit', handleAvatarFormSubmit);
