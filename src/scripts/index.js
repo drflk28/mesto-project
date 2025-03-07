@@ -108,19 +108,48 @@ profileEditButton.addEventListener('click', () => {
 function handleProfileFormSubmit(evt) {
     evt.preventDefault();
 
-    // Обновляем данные на странице
-    profileName.textContent = nameInput.value;
-    profileJob.textContent = jobInput.value;
+    const updatedUserData = {
+        name: nameInput.value,
+        about: jobInput.value
+    };
 
-    // Закрываем поп-ап
-    closeModal(profilePopup);
-
-    // Сбрасываем форму
-    profileFormElement.reset();
+    // Отправка данных на сервер
+    request('/users/me', {
+        method: 'PATCH',
+        body: JSON.stringify(updatedUserData)
+    })
+        .then((userData) => {
+            // Обновляем данные на странице
+            profileName.textContent = userData.name;
+            profileJob.textContent = userData.about;
+            closeModal(profilePopup);
+        })
+        .catch((err) => {
+            console.error(err);
+            alert('Не удалось обновить профиль. Попробуйте позже.');
+        });
 }
+// Функция проверки валидности формы редактирования профиля
+function checkProfileFormValidity() {
+    return profileFormElement.checkValidity();
+}
+
+// Функция переключения состояния кнопки "Сохранить"
+function toggleProfileButtonState() {
+    if (checkProfileFormValidity()) {
+        profileFormElement.querySelector('.popup__button').classList.remove('popup__button_disabled');
+        profileFormElement.querySelector('.popup__button').disabled = false;
+    } else {
+        profileFormElement.querySelector('.popup__button').classList.add('popup__button_disabled');
+        profileFormElement.querySelector('.popup__button').disabled = true;
+    }
+}
+
 
 // Привязываем обработчик к событию submit
 profileFormElement.addEventListener('submit', handleProfileFormSubmit);
+nameInput.addEventListener('input', toggleProfileButtonState);
+jobInput.addEventListener('input', toggleProfileButtonState);
 
 // Элементы формы добавления карточки
 const cardFormElement = cardPopup.querySelector('.popup__form');

@@ -1,27 +1,19 @@
-const config = {
-    baseUrl: 'https://nomoreparties.co/v1/apf-cohort-202',
-    headers: {
-        authorization: 'e7ed7294-3c81-43c8-872d-a5a1eadbb865',
-        'Content-Type': 'application/json',
-    },
-};
+const token = 'e7ed7294-3c81-43c8-872d-a5a1eadbb865'; // Замените на ваш реальный токен
+const cohortId = 'apf-cohort-202'; // Укажите свой идентификатор группы
+const apiBaseUrl = `https://nomoreparties.co/v1/${cohortId}`;
 
-// Базовая функция для отправки запросов
-function request(endpoint, options, customConfig = {}) {
-    const baseUrl = customConfig.baseUrl || config.baseUrl;
-    const headers = { ...config.headers, ...customConfig.headers };
-
-    return fetch(`${baseUrl}${endpoint}`, {
-        headers,
-        ...options,
+function request(endpoint, options) {
+    return fetch(`${apiBaseUrl}${endpoint}`, {
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': token
+        },
+        ...options
     })
         .then((res) => {
-            if (res.ok) {
-                return res.json();
+            if (!res.ok) {
+                return Promise.reject(`Ошибка: ${res.status}`);
             }
-            return Promise.reject(`Ошибка: ${res.status}`);
-        })
-        .catch((err) => {
-            console.error(err);
+            return res.json();
         });
 }
