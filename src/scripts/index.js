@@ -12,27 +12,33 @@ function deleteCard(cardElement) {
 
 // @todo: Функция создания карточки
 // Функция создания карточки
-function createCard({ name, link }) {
+function createCard({ name, link, _id, owner }) {
     const cardElement = cardTemplate.cloneNode(true);
-
+    cardElement.setAttribute('data-id', _id);
     const cardImage = cardElement.querySelector('.card__image');
     const cardTitle = cardElement.querySelector('.card__title');
     const deleteButton = cardElement.querySelector('.card__delete-button');
     const likeButton = cardElement.querySelector('.card__like-button');
-    const likeCount = cardElement.querySelector('.card__like-count'); // Получаем элемент для количества лайков
+    const likeCount = cardElement.querySelector('.card__like-count');
 
     cardImage.src = link;
     cardImage.alt = name;
     cardTitle.textContent = name;
 
-    let likeCounter = 0; // Изначально количество лайков равно 0
+    let likeCounter = 0;
 
-    // Удаление карточки
-    deleteButton.addEventListener('click', () => {
-        deleteCard(cardElement);
+    // Если карточка не ваша, скрыть кнопку удаления
+    getUserInfo().then((userData) => {
+        if (userData._id !== owner._id) {
+            deleteButton.style.display = 'none';  // Скрыть кнопку удаления
+        } else {
+            // Если это ваша карточка, добавить обработчик для удаления
+            deleteButton.addEventListener('click', () => {
+                deleteCard(_id);
+            });
+        }
     });
 
-    // Лайк карточки
     likeButton.addEventListener('click', () => {
         likeButton.classList.toggle('card__like-button_is-active');
 
@@ -42,18 +48,32 @@ function createCard({ name, link }) {
             likeCounter--;
         }
 
-        // Обновление отображаемого количества лайков
         likeCount.textContent = likeCounter;
     });
 
-    // Открытие изображения в поп-апе
     cardImage.addEventListener('click', () => {
         openImagePopup(link, name);
     });
 
     return cardElement;
 }
-
+// Функция удаления карточки
+function deleteCard(cardId) {
+    request(`/cards/${cardId}`, {
+        method: 'DELETE',
+    })
+        .then(() => {
+            // Удаляем карточку из DOM
+            const cardElement = document.querySelector(`[data-id="${cardId}"]`);
+            if (cardElement) {
+                cardElement.remove();
+            }
+        })
+        .catch((err) => {
+            console.error(err);
+            alert('Не удалось удалить карточку. Попробуйте позже.');
+        });
+}
 
 // Открытие изображения в поп-апе
 function openImagePopup(link, name) {
@@ -75,7 +95,7 @@ function renderCards(cards) {
     });
 }
 
-renderCards(initialCards);
+// renderCards(initialCards);
 
 // Универсальная функция открытия поп-апа
 function openModal(popup) {
