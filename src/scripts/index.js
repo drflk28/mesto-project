@@ -121,8 +121,8 @@ getUserInfo()
         profileJob.textContent = userData.about;
     })
     .catch((err) => {
-        console.error(err);
-        alert('Не удалось загрузить данные пользователя. Попробуйте позже.');
+        console.error('Ошибка при загрузке данных пользователя:', err);
+        alert('Не удалось загрузить данные пользователя. Пожалуйста, попробуйте позже.');
     });
 
 const avatarEditButton = document.querySelector('.profile__edit-avatar-button');
@@ -172,19 +172,17 @@ avatarForm.addEventListener('submit', (evt) => {
         avatar: avatarInput.value,
     };
 
-    // Отправка PATCH-запроса на сервер для обновления аватара
     request('/users/me/avatar', {
         method: 'PATCH',
         body: JSON.stringify(updatedAvatarData),
     })
         .then((userData) => {
-            // Обновляем аватар на странице
             profileImage.style.backgroundImage = `url(${userData.avatar})`;
             closeModal(avatarPopup);
         })
         .catch((err) => {
-            console.error(err);
-            alert('Не удалось обновить аватар. Попробуйте позже.');
+            console.error('Ошибка при обновлении аватара:', err);
+            alert('Не удалось обновить аватар. Пожалуйста, попробуйте позже.');
         });
 });
 

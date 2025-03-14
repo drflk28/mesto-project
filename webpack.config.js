@@ -2,10 +2,10 @@ const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 module.exports = {
-    entry: '../src/scripts/index.js', // Ваш основной JS файл
+    entry: './src/scripts/index.js', // Убедитесь, что путь правильный
     output: {
+        filename: 'main.js',
         path: path.resolve(__dirname, 'dist'),
-        filename: 'scripts/main.js',
     },
     module: {
         rules: [

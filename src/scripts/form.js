@@ -23,8 +23,12 @@ export function handleCardFormSubmit(evt) {
             const cardElement = createCard(newCard);
             placesList.prepend(cardElement);
             closeModal(cardPopup);
+            cardFormElement.reset(); // Сброс формы после успешного добавления
         })
-        .catch((err) => alert('Не удалось добавить карточку.'));
+        .catch((err) => {
+            console.error('Ошибка при добавлении карточки:', err);
+            alert('Не удалось добавить карточку. Пожалуйста, попробуйте ещё раз.');
+        });
 }
 
 cardFormElement.addEventListener('submit', handleCardFormSubmit);

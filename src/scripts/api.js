@@ -9,18 +9,18 @@ const config = {
 };
 
 // Функция для выполнения запросов
-export function request (url, options) {
+export function request(url, options) {
     return fetch(`${config.baseUrl}${url}`, {
         ...options,
         headers: config.headers,
     })
         .then((res) => {
             if (!res.ok) {
-                return Promise.reject(`Ошибка: ${res.status}`);
+                return res.json().then(err => Promise.reject(`Ошибка: ${res.status} - ${err.message}`));
             }
             return res.json();
         });
-};
+}
 
 export function getUserInfo() {
     return request('/users/me', { method: 'GET' });

@@ -11,7 +11,10 @@ export function deleteCard(cardId) {
                 cardElement.remove();
             }
         })
-        .catch((err) => alert('Не удалось удалить карточку.'));
+        .catch((err) => {
+            console.error('Ошибка при удалении карточки:', err);
+            alert('Не удалось удалить карточку. Пожалуйста, попробуйте ещё раз.');
+        });
 }
 
 // Функция создания карточки
@@ -56,10 +59,11 @@ export function createCard({ name, link, _id, owner, likes }) {
     return cardElement;
 }
 
-export function renderCards(cards) {
+export function renderCards(cards, currentUserId) {
     const placesList = document.querySelector('.places__list');
+    placesList.innerHTML = ''; // Очистка списка перед рендерингом
     cards.forEach((cardData) => {
-        const card = createCard(cardData);
+        const card = createCard(cardData, currentUserId);
         placesList.append(card);
     });
 }
