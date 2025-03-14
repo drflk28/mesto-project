@@ -1,19 +1,45 @@
-const token = 'e7ed7294-3c81-43c8-872d-a5a1eadbb865';
-const cohortId = 'apf-cohort-202';
-const apiBaseUrl = `https://nomoreparties.co/v1/${cohortId}`;
+import { updateLikeState } from "./card.js";
 
-function request(endpoint, options) {
-    return fetch(`${apiBaseUrl}${endpoint}`, {
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': token
-        },
-        ...options
+const config = {
+    baseUrl: 'https://nomoreparties.co/v1/apf-cohort-202',
+    headers: {
+        authorization: 'e7ed7294-3c81-43c8-872d-a5a1eadbb865',
+        'Content-Type': 'application/json'
+    }
+};
+
+// Функция для выполнения запросов
+export function request (url, options) {
+    return fetch(`${config.baseUrl}${url}`, {
+        ...options,
+        headers: config.headers,
     })
         .then((res) => {
             if (!res.ok) {
                 return Promise.reject(`Ошибка: ${res.status}`);
             }
             return res.json();
+        });
+};
+
+export function getUserInfo() {
+    return request('/users/me', { method: 'GET' });
+}
+
+export function getInitialCards() {
+    return request('/cards', { method: 'GET' });
+}
+
+export function likeCard(cardId) {
+    return request(`/cards/likes/${cardId}`, { method: 'PUT' })
+        .then((updatedCard) => {
+            updateLikeState(updatedCard);
+        });
+}
+
+export function unlikeCard(cardId) {
+    return request(`/cards/likes/${cardId}`, { method: 'DELETE' })
+        .then((updatedCard) => {
+            updateLikeState(updatedCard);
         });
 }
