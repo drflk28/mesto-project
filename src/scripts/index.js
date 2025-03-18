@@ -3,7 +3,7 @@ import {renderCards, createCard, deleteCard, updateLikeState} from "./card.js";
 import {handleProfileFormSubmit} from "./profile.js";
 import {handleCardFormSubmit, checkProfileFormValidity, toggleProfileButtonState, checkCardFormValidity, toggleCardButtonState} from "./form.js";
 import { openModal, closeModal, openImagePopup, closeByEsc } from './popup.js';
-
+import '../pages/index.css';
 const placesList = document.querySelector('.places__list');
 
 // Находим все нужные поп-апы
