@@ -1,10 +1,17 @@
-import { request, getInitialCards, getUserInfo, unlikeCard, likeCard } from './api.js';
-import {renderCards, createCard, deleteCard, updateLikeState} from "./card.js";
+import './utils.js';
+import './profile.js';
+import './card.js';
+import './popup.js';
+import './form.js';
+import './api.js';
+
+import { request, getInitialCards, getUserInfo} from './api.js';
+import {renderCards} from "./card.js";
 import {handleProfileFormSubmit} from "./profile.js";
-import {handleCardFormSubmit, checkProfileFormValidity, toggleProfileButtonState, checkCardFormValidity, toggleCardButtonState} from "./form.js";
-import { openModal, closeModal, openImagePopup, closeByEsc } from './popup.js';
+import {handleCardFormSubmit, toggleProfileButtonState, toggleCardButtonState} from "./form.js";
+import { openModal, closeModal, closeByEsc } from './popup.js';
 import '../pages/index.css';
-const placesList = document.querySelector('.places__list');
+
 
 // Находим все нужные поп-апы
 const profilePopup = document.querySelector('.popup_type_edit');
@@ -109,21 +116,39 @@ document.querySelector('.profile__edit-button').addEventListener('click', () => 
     const popup = document.querySelector('.popup_type_edit');
     openPopup(popup);
 });
+let userData = null;
+// Функция для загрузки данных пользователя
+function loadUserData() {
+    if (userData) {
+        return Promise.resolve(userData); // Если данные уже загружены, возвращаем их
+    }
 
-//Получение карточек с сервера
-getInitialCards().then((cards) => {
-    renderCards(cards);
-});
+    return getUserInfo()
+        .then((data) => {
+            userData = data; // Сохраняем данные
+            return data;
+        })
+        .catch((err) => {
+            console.error('Ошибка при загрузке данных пользователя:', err);
+            alert('Не удалось загрузить данные пользователя. Пожалуйста, попробуйте позже.');
+            throw err; // Прокидываем ошибку дальше
+        });
+}
 
-getUserInfo()
-    .then((userData) => {
+// Загружаем карточки и данные пользователя
+Promise.all([getInitialCards(), loadUserData()])
+    .then(([cards]) => {
+        // Рендерим карточки
+        renderCards(cards);
+
+        // Обновляем информацию о пользователе
         profileName.textContent = userData.name;
         profileJob.textContent = userData.about;
     })
     .catch((err) => {
-        console.error('Ошибка при загрузке данных пользователя:', err);
-        alert('Не удалось загрузить данные пользователя. Пожалуйста, попробуйте позже.');
+        console.error('Ошибка при загрузке данных:', err);
     });
+
 
 const avatarEditButton = document.querySelector('.profile__edit-avatar-button');
 const avatarPopup = document.querySelector('.popup_type_edit-avatar');
@@ -218,7 +243,7 @@ function handleAvatarFormSubmit(evt) {
         .then((userData) => {
             console.log('Аватар успешно обновлен:', userData);
             // Обновляем аватар на странице
-            document.querySelector('.profile__image').src = userData.avatar;
+            document.querySelector('.profile__image').style.backgroundImage = `url(${userData.avatar})`;
             closeModal(avatarPopup);
         })
         .catch((err) => {

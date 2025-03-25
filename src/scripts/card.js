@@ -18,7 +18,7 @@ export function deleteCard(cardId) {
 }
 
 // Функция создания карточки
-export function createCard({ name, link, _id, owner, likes }) {
+export function createCard({ name, link, _id, owner, likes }, currentUserId) {
     const cardTemplate = document.querySelector('#card-template').content.querySelector(".card");
     const cardElement = cardTemplate.cloneNode(true);
     cardElement.setAttribute('data-id', _id);
@@ -33,31 +33,31 @@ export function createCard({ name, link, _id, owner, likes }) {
     cardTitle.textContent = name;
     likeCount.textContent = likes.length;
 
-    getUserInfo().then((userData) => {
-        if (userData._id !== owner._id) {
-            deleteButton.style.display = 'none';
+    // Убираем запрос к getUserInfo() и сразу используем currentUserId
+    if (currentUserId !== owner._id) {
+        deleteButton.style.display = 'none';
+    } else {
+        deleteButton.addEventListener('click', () => deleteCard(_id));
+    }
+
+    if (likes.some((like) => like._id === currentUserId)) {
+        likeButton.classList.add('card__like-button_is-active');
+    }
+
+    likeButton.addEventListener('click', () => {
+        const cardId = cardElement.getAttribute('data-id');
+        if (likeButton.classList.contains('card__like-button_is-active')) {
+            unlikeCard(cardId);
         } else {
-            deleteButton.addEventListener('click', () => deleteCard(_id));
+            likeCard(cardId);
         }
-
-        if (likes.some((like) => like._id === userData._id)) {
-            likeButton.classList.add('card__like-button_is-active');
-        }
-
-        likeButton.addEventListener('click', () => {
-            const cardId = cardElement.getAttribute('data-id');
-            if (likeButton.classList.contains('card__like-button_is-active')) {
-                unlikeCard(cardId);
-            } else {
-                likeCard(cardId);
-            }
-        });
     });
 
     cardImage.addEventListener('click', () => openImagePopup(link, name));
 
     return cardElement;
 }
+
 
 export function renderCards(cards, currentUserId) {
     const placesList = document.querySelector('.places__list');

@@ -1,3 +1,5 @@
+const imagePopup = document.querySelector('.popup_type_image');
+
 // Открытие и закрытие поп-апов
 export function openModal(popup) {
     popup.classList.add('popup_is-opened');

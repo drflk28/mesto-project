@@ -7,6 +7,7 @@ const config = {
         'Content-Type': 'application/json'
     }
 };
+let userInfoCache = null;
 
 // Функция для выполнения запросов
 export function request(url, options) {
@@ -22,10 +23,22 @@ export function request(url, options) {
         });
 }
 
+// Функция для получения данных пользователя с кэшированием
 export function getUserInfo() {
-    return request('/users/me', { method: 'GET' });
+    if (userInfoCache) {
+        // Если данные уже кэшированы, возвращаем их
+        return Promise.resolve(userInfoCache);
+    }
+
+    // Если данных нет в кэше, выполняем запрос
+    return request('/users/me', { method: 'GET' })
+        .then((data) => {
+            userInfoCache = data;  // Кэшируем полученные данные
+            return data;
+        });
 }
 
+// Остальные функции остаются без изменений
 export function getInitialCards() {
     return request('/cards', { method: 'GET' });
 }

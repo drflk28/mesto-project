@@ -10,26 +10,37 @@ const cardLinkInput = cardFormElement.querySelector('.popup__input_type_url');
 const cardSubmitButton = cardFormElement.querySelector('.popup__button');
 const profilePopup = document.querySelector('.popup_type_edit');
 const profileFormElement = profilePopup.querySelector('.popup__form');
+const placesList = document.querySelector('.places__list');
 
 // Обработчик формы
-export function handleCardFormSubmit(evt) {
+function handleCardFormSubmit(evt) {
     evt.preventDefault();
-    const cardData = {
-        name: cardNameInput.value,
-        link: cardLinkInput.value,
-    };
-    request('/cards', { method: 'POST', body: JSON.stringify(cardData) })
+
+    const name = cardNameInput.value;
+    const link = cardLinkInput.value;
+
+    const newCardData = { name, link };
+
+    request('/cards', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(newCardData)
+    })
         .then((newCard) => {
-            const cardElement = createCard(newCard);
-            placesList.prepend(cardElement);
+            console.log(newCard); // для отладки
+            const newCardElement = createCard(newCard, userData._id);
+            placesList.prepend(newCardElement);
             closeModal(cardPopup);
-            cardFormElement.reset(); // Сброс формы после успешного добавления
+            cardFormElement.reset();
         })
         .catch((err) => {
             console.error('Ошибка при добавлении карточки:', err);
-            alert('Не удалось добавить карточку. Пожалуйста, попробуйте ещё раз.');
+            alert('Не удалось добавить карточку. Попробуйте снова.');
         });
 }
+
 
 cardFormElement.addEventListener('submit', handleCardFormSubmit);
 
