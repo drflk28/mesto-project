@@ -73,11 +73,6 @@ cardAddButton.addEventListener('click', () => {
     openModal(cardPopup);
 });
 
-
-// Привязываем обработчик к событию submit
-cardFormElement.addEventListener('submit', handleCardFormSubmit);
-
-// Общий обработчик закрытия поп-апов по клику на крестик
 // Общий обработчик закрытия поп-апов по клику на оверлей
 closeButtons.forEach((button) => {
     button.addEventListener('click', (evt) => {
@@ -267,3 +262,4 @@ export function showCardInputError(inputElement) {
         console.error(`Элемент для отображения ошибки не найден: ${inputElement.name}`);
     }
 }
+

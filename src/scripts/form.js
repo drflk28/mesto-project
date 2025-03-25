@@ -1,8 +1,8 @@
 import { request} from './api.js';
 import { createCard} from "./card.js";
 import { closeModal } from './popup.js';
+import './index.js';
 
-// Логика для форм (например, добавление карточки)
 const cardPopup = document.querySelector('.popup_type_new-card');
 const cardFormElement = cardPopup.querySelector('.popup__form');
 const cardNameInput = cardFormElement.querySelector('.popup__input_type_card-name');
@@ -12,8 +12,7 @@ const profilePopup = document.querySelector('.popup_type_edit');
 const profileFormElement = profilePopup.querySelector('.popup__form');
 const placesList = document.querySelector('.places__list');
 
-// Обработчик формы
-function handleCardFormSubmit(evt) {
+export function handleCardFormSubmit(evt, userData) {  // Добавляем параметр userData
     evt.preventDefault();
 
     const name = cardNameInput.value;
@@ -29,8 +28,7 @@ function handleCardFormSubmit(evt) {
         body: JSON.stringify(newCardData)
     })
         .then((newCard) => {
-            console.log(newCard); // для отладки
-            const newCardElement = createCard(newCard, userData._id);
+            const newCardElement = createCard(newCard, userData._id); // Используем переданный userData
             placesList.prepend(newCardElement);
             closeModal(cardPopup);
             cardFormElement.reset();
@@ -41,8 +39,6 @@ function handleCardFormSubmit(evt) {
         });
 }
 
-
-cardFormElement.addEventListener('submit', handleCardFormSubmit);
 
 export function checkProfileFormValidity() {
     return profileFormElement.checkValidity();
