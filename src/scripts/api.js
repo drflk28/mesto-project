@@ -26,16 +26,18 @@ export function request(url, options) {
 // Функция для получения данных пользователя с кэшированием
 export function getUserInfo() {
     if (userInfoCache) {
-        // Если данные уже кэшированы, возвращаем их
         return Promise.resolve(userInfoCache);
     }
 
-    // Если данных нет в кэше, выполняем запрос
     return request('/users/me', { method: 'GET' })
         .then((data) => {
-            userInfoCache = data;  // Кэшируем полученные данные
+            userInfoCache = data;
             return data;
         });
+}
+
+export function clearUserCache() {
+    userInfoCache = null;
 }
 
 // Остальные функции остаются без изменений
@@ -43,16 +45,18 @@ export function getInitialCards() {
     return request('/cards', { method: 'GET' });
 }
 
-export function likeCard(cardId) {
+export function likeCard(cardId, currentUserId) {
     return request(`/cards/likes/${cardId}`, { method: 'PUT' })
         .then((updatedCard) => {
-            updateLikeState(updatedCard);
+            updateLikeState(updatedCard, currentUserId);
+            return updatedCard;
         });
 }
 
-export function unlikeCard(cardId) {
+export function unlikeCard(cardId, currentUserId) {
     return request(`/cards/likes/${cardId}`, { method: 'DELETE' })
         .then((updatedCard) => {
-            updateLikeState(updatedCard);
+            updateLikeState(updatedCard, currentUserId);
+            return updatedCard;
         });
 }

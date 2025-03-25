@@ -47,9 +47,15 @@ export function createCard({ name, link, _id, owner, likes }, currentUserId) {
     likeButton.addEventListener('click', () => {
         const cardId = cardElement.getAttribute('data-id');
         if (likeButton.classList.contains('card__like-button_is-active')) {
-            unlikeCard(cardId);
+            unlikeCard(cardId, currentUserId)
+                .then(() => {
+                    likeButton.classList.remove('card__like-button_is-active');
+                });
         } else {
-            likeCard(cardId);
+            likeCard(cardId, currentUserId)
+                .then(() => {
+                    likeButton.classList.add('card__like-button_is-active');
+                });
         }
     });
 
@@ -68,21 +74,20 @@ export function renderCards(cards, currentUserId) {
     });
 }
 
-export function updateLikeState(updatedCard) {
+export function updateLikeState(updatedCard, currentUserId) {
     const cardElement = document.querySelector(`[data-id="${updatedCard._id}"]`);
+    if (!cardElement) return;
+
     const likeButton = cardElement.querySelector('.card__like-button');
     const likeCount = cardElement.querySelector('.card__like-count');
 
     // Обновление количества лайков
     likeCount.textContent = updatedCard.likes.length;
 
-    // Получаем данные о текущем пользователе
-    getUserInfo().then((userData) => {
-        // Обновление состояния кнопки лайка
-        if (updatedCard.likes.some((like) => like._id === userData._id)) {
-            likeButton.classList.add('card__like-button_is-active');
-        } else {
-            likeButton.classList.remove('card__like-button_is-active');
-        }
-    });
+    // Обновление состояния кнопки лайка
+    if (updatedCard.likes.some((like) => like._id === currentUserId)) {
+        likeButton.classList.add('card__like-button_is-active');
+    } else {
+        likeButton.classList.remove('card__like-button_is-active');
+    }
 }

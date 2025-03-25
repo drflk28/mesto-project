@@ -65,6 +65,15 @@ cardLinkInput.addEventListener('input', () => {
     toggleCardButtonState();
 });
 
+cardFormElement.addEventListener('submit', (evt) => {
+    if (userData) {
+        handleCardFormSubmit(evt, userData._id);
+    } else {
+        console.error('Данные пользователя не загружены');
+        alert('Не удалось загрузить данные пользователя. Пожалуйста, обновите страницу.');
+    }
+});
+
 // Обработчик открытия поп-апа добавления карточки
 cardAddButton.addEventListener('click', () => {
     // Очищаем поля формы
@@ -115,35 +124,45 @@ let userData = null;
 // Функция для загрузки данных пользователя
 function loadUserData() {
     if (userData) {
-        return Promise.resolve(userData); // Если данные уже загружены, возвращаем их
+        return Promise.resolve(userData);
     }
 
     return getUserInfo()
         .then((data) => {
-            userData = data; // Сохраняем данные
+            userData = data;
+            // Обновляем аватар при загрузке
+            if (data.avatar) {
+                profileImage.style.backgroundImage = `url(${data.avatar})`;
+            }
             return data;
         })
         .catch((err) => {
             console.error('Ошибка при загрузке данных пользователя:', err);
             alert('Не удалось загрузить данные пользователя. Пожалуйста, попробуйте позже.');
-            throw err; // Прокидываем ошибку дальше
+            throw err;
         });
 }
-
 // Загружаем карточки и данные пользователя
 Promise.all([getInitialCards(), loadUserData()])
-    .then(([cards]) => {
-        // Рендерим карточки
-        renderCards(cards);
+    .then(([cards, loadedUserData]) => {  // Используем другое имя переменной, чтобы не перезаписать глобальную
+        // Сохраняем данные пользователя
+        userData = loadedUserData;
+
+        // Рендерим карточки с передачей ID текущего пользователя
+        renderCards(cards, userData._id);
 
         // Обновляем информацию о пользователе
         profileName.textContent = userData.name;
         profileJob.textContent = userData.about;
+
+        // Обновляем аватар, если он есть
+        if (userData.avatar) {
+            profileImage.style.backgroundImage = `url(${userData.avatar})`;
+        }
     })
     .catch((err) => {
         console.error('Ошибка при загрузке данных:', err);
     });
-
 
 const avatarEditButton = document.querySelector('.profile__edit-avatar-button');
 const avatarPopup = document.querySelector('.popup_type_edit-avatar');
@@ -154,14 +173,10 @@ const profileImage = document.querySelector('.profile__image');
 
 // Обработчик открытия поп-апа редактирования аватара
 avatarEditButton.addEventListener('click', () => {
-    const backgroundImage = profileImage.style.backgroundImage;
-    if (backgroundImage && backgroundImage !== 'none') {
-        const urlRegex = /url\(["']?(.*?)["']?\)/;
-        const match = backgroundImage.match(urlRegex);
-        avatarInput.value = match ? match[1] : '';
-    } else {
-        avatarInput.value = '';
-    }
+    // Всегда очищаем поле при открытии
+    avatarInput.value = '';
+    // Сбрасываем валидацию
+    toggleAvatarButtonState();
     openModal(avatarPopup);
 });
 
@@ -185,65 +200,41 @@ function toggleAvatarButtonState() {
 }
 
 // Обработчик отправки формы редактирования аватара
-avatarForm.addEventListener('submit', (evt) => {
-    evt.preventDefault();
-
-    const updatedAvatarData = {
-        avatar: avatarInput.value,
-    };
-
-    request('/users/me/avatar', {
-        method: 'PATCH',
-        body: JSON.stringify(updatedAvatarData),
-    })
-        .then((userData) => {
-            profileImage.style.backgroundImage = `url(${userData.avatar})`;
-            closeModal(avatarPopup);
-        })
-        .catch((err) => {
-            console.error('Ошибка при обновлении аватара:', err);
-            alert('Не удалось обновить аватар. Пожалуйста, попробуйте позже.');
-        });
-});
-
-// Обработчик отправки формы редактирования аватара
 function handleAvatarFormSubmit(evt) {
     evt.preventDefault();
+    evt.stopPropagation(); // Добавляем для предотвращения всплытия
 
-    // Проверяем, что avatarInput существует
-    if (!avatarInput) {
-        console.error('Элемент avatarInput не найден');
-        return;
-    }
-
-    // Проверяем, что поле ввода не пустое
-    if (!avatarInput.value) {
+    const avatarUrl = avatarInput.value.trim();
+    if (!avatarUrl) {
         alert('Пожалуйста, введите ссылку на аватар.');
         return;
     }
 
-    // Создаем объект с данными для отправки
-    const updatedAvatarData = {
-        avatar: avatarInput.value, // Используем значение из поля ввода
-    };
+    // Блокируем кнопку на время отправки
+    const submitButton = evt.target.querySelector('.popup__button');
+    const originalText = submitButton.textContent;
+    submitButton.disabled = true;
+    submitButton.textContent = 'Сохранение...';
 
-    // Отправляем данные на сервер
     request('/users/me/avatar', {
         method: 'PATCH',
-        headers: {
-            'Content-Type': 'application/json', // Указываем, что отправляем JSON
-        },
-        body: JSON.stringify(updatedAvatarData), // Преобразуем объект в JSON
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ avatar: avatarUrl })
     })
         .then((userData) => {
-            console.log('Аватар успешно обновлен:', userData);
-            // Обновляем аватар на странице
-            document.querySelector('.profile__image').style.backgroundImage = `url(${userData.avatar})`;
+            // Обновляем данные пользователя
+            userData = userData; // Сохраняем новые данные
+            profileImage.style.backgroundImage = `url(${userData.avatar})`;
             closeModal(avatarPopup);
+            avatarInput.value = '';
         })
         .catch((err) => {
-            console.error('Ошибка при обновлении аватара:', err);
-            alert('Не удалось обновить аватар. Попробуйте позже.');
+            console.error('Ошибка:', err);
+            alert(`Ошибка: ${err.message || 'Не удалось обновить аватар'}`);
+        })
+        .finally(() => {
+            submitButton.disabled = false;
+            submitButton.textContent = originalText;
         });
 }
 

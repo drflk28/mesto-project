@@ -1,24 +1,31 @@
-import { request} from './api.js';
-import { createCard} from "./card.js";
+import { request } from './api.js';
+import { createCard } from "./card.js";
 import { closeModal } from './popup.js';
-import './index.js';
+import {handleProfileFormSubmit} from "./profile";
 
 const cardPopup = document.querySelector('.popup_type_new-card');
 const cardFormElement = cardPopup.querySelector('.popup__form');
 const cardNameInput = cardFormElement.querySelector('.popup__input_type_card-name');
 const cardLinkInput = cardFormElement.querySelector('.popup__input_type_url');
 const cardSubmitButton = cardFormElement.querySelector('.popup__button');
+const placesList = document.querySelector('.places__list');
 const profilePopup = document.querySelector('.popup_type_edit');
 const profileFormElement = profilePopup.querySelector('.popup__form');
-const placesList = document.querySelector('.places__list');
 
-export function handleCardFormSubmit(evt, userData) {  // Добавляем параметр userData
+// Добавляем параметр currentUserId
+export function handleCardFormSubmit(evt, currentUserId) {
     evt.preventDefault();
 
     const name = cardNameInput.value;
     const link = cardLinkInput.value;
 
     const newCardData = { name, link };
+
+    // Блокируем кнопку на время отправки
+    const submitButton = evt.target.querySelector('.popup__button');
+    const originalText = submitButton.textContent;
+    submitButton.disabled = true;
+    submitButton.textContent = 'Сохранение...';
 
     request('/cards', {
         method: 'POST',
@@ -28,7 +35,7 @@ export function handleCardFormSubmit(evt, userData) {  // Добавляем п�
         body: JSON.stringify(newCardData)
     })
         .then((newCard) => {
-            const newCardElement = createCard(newCard, userData._id); // Используем переданный userData
+            const newCardElement = createCard(newCard, currentUserId);
             placesList.prepend(newCardElement);
             closeModal(cardPopup);
             cardFormElement.reset();
@@ -36,6 +43,10 @@ export function handleCardFormSubmit(evt, userData) {  // Добавляем п�
         .catch((err) => {
             console.error('Ошибка при добавлении карточки:', err);
             alert('Не удалось добавить карточку. Попробуйте снова.');
+        })
+        .finally(() => {
+            submitButton.disabled = false;
+            submitButton.textContent = originalText;
         });
 }
 
