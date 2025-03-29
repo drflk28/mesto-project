@@ -23,7 +23,7 @@ export function request(url, options) {
         });
 }
 
-// Функция для получения данных пользователя с кэшированием
+// Функция для получения данных пользователя
 export function getUserInfo() {
     if (userInfoCache) {
         return Promise.resolve(userInfoCache);
@@ -36,13 +36,29 @@ export function getUserInfo() {
         });
 }
 
-export function clearUserCache() {
-    userInfoCache = null;
-}
-
 // Остальные функции остаются без изменений
 export function getInitialCards() {
     return request('/cards', { method: 'GET' });
+}
+
+export function addCardRequest(cardData) {
+    return request('/cards', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(cardData)
+    });
+}
+
+export function updateProfileRequest(updatedUserData) {
+    return request('/users/me', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updatedUserData)
+    });
+}
+
+export function deleteCardRequest(cardId) {
+    return request(`/cards/${cardId}`, { method: 'DELETE' });
 }
 
 export function likeCard(cardId, currentUserId) {
@@ -59,4 +75,12 @@ export function unlikeCard(cardId, currentUserId) {
             updateLikeState(updatedCard, currentUserId);
             return updatedCard;
         });
+}
+
+export function updateUserAvatar(avatarUrl) {
+    return request('/users/me/avatar', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ avatar: avatarUrl })
+    });
 }

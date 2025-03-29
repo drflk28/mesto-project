@@ -1,10 +1,10 @@
-import {getInitialCards, getUserInfo, request, likeCard, unlikeCard} from './api.js';
-import { openImagePopup } from './popup.js';
+import {deleteCardRequest, likeCard, unlikeCard} from './api.js';
+import { openImagePopup } from './modal.js';
 
 
 // Функция удаления карточки
 export function deleteCard(cardId) {
-    request(`/cards/${cardId}`, { method: 'DELETE' })
+    deleteCardRequest(cardId)
         .then(() => {
             const cardElement = document.querySelector(`[data-id="${cardId}"]`);
             if (cardElement) {
@@ -91,3 +91,4 @@ export function updateLikeState(updatedCard, currentUserId) {
         likeButton.classList.remove('card__like-button_is-active');
     }
 }
+
