@@ -1,6 +1,6 @@
 import {addCardRequest, updateProfileRequest, updateUserAvatar} from './api.js';
 import {createCard} from "./card.js";
-import {toggleAvatarButtonState, resetValidationErrors, toggleCardButtonState} from "./validate.js";
+import {toggleAvatarButtonState, showProfileInputError, toggleProfileButtonState, resetProfileValidation} from "./validate.js";
 
 const profilePopup = document.querySelector('.popup_type_edit');
 const profileName = document.querySelector('.profile__title');
@@ -20,9 +20,22 @@ export function closeModal(popup) {
     popup.classList.remove('popup_is-opened');
     document.removeEventListener('keydown', closeByEsc);
 
-    // Сбрасываем валидацию при закрытии
     if (popup === cardPopup) {
         resetCardFormValidation();
+    }
+    if (popup === profilePopup) {
+        resetProfileValidation();
+    }
+}
+
+function toggleCardButtonState() {
+    const cardSubmitButton = cardFormElement.querySelector('.popup__button');
+    if (cardFormElement.checkValidity()) {
+        cardSubmitButton.classList.remove('popup__button_disabled');
+        cardSubmitButton.disabled = false;
+    } else {
+        cardSubmitButton.classList.add('popup__button_disabled');
+        cardSubmitButton.disabled = true;
     }
 }
 
@@ -33,13 +46,12 @@ export function resetCardFormValidation() {
         errorElement.textContent = '';
     });
 
-    // Также сбрасываем стили ошибок у инпутов
     const inputs = cardFormElement.querySelectorAll('.popup__input');
     inputs.forEach(input => {
         input.classList.remove('popup__input_type_error');
     });
 
-    // Возвращаем кнопку в исходное состояние
+    // Используем локальную функцию
     toggleCardButtonState();
 }
 
@@ -179,4 +191,14 @@ export function handleAvatarFormSubmit(evt) {
             submitButton.textContent = originalText;
         });
 }
+
+nameInput.addEventListener('input', () => {
+    showProfileInputError(nameInput);
+    toggleProfileButtonState();
+});
+
+jobInput.addEventListener('input', () => {
+    showProfileInputError(jobInput);
+    toggleProfileButtonState();
+});
 

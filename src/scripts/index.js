@@ -1,8 +1,8 @@
 import { getInitialCards, getUserInfo} from './api.js';
 import {renderCards} from "./card.js";
-import {toggleProfileButtonState, toggleCardButtonState, showCardInputError, resetValidationErrors} from "./validate.js";
+import {toggleProfileButtonState, showCardInputError, resetProfileValidation} from "./validate.js";
 import '../pages/index.css';
-import { handleProfileFormSubmit, openModal, closeModal, closeByEsc, handleCardFormSubmit, openPopup, resetCardFormValidation} from './modal.js';
+import { handleProfileFormSubmit, openModal, closeModal, handleCardFormSubmit, openPopup, resetCardFormValidation} from './modal.js';
 
 const profilePopup = document.querySelector('.popup_type_edit');
 const cardPopup = document.querySelector('.popup_type_new-card');
@@ -21,11 +21,22 @@ const jobInput = profileFormElement.querySelector('.popup__input_type_descriptio
 const profileName = document.querySelector('.profile__title');
 const profileJob = document.querySelector('.profile__description');
 
-// Обработчик открытия поп-апа редактирования профиля
+function toggleCardButtonState() {
+    const cardSubmitButton = cardFormElement.querySelector('.popup__button');
+    if (cardFormElement.checkValidity()) {
+        cardSubmitButton.classList.remove('popup__button_disabled');
+        cardSubmitButton.disabled = false;
+    } else {
+        cardSubmitButton.classList.add('popup__button_disabled');
+        cardSubmitButton.disabled = true;
+    }
+}
+
 profileEditButton.addEventListener('click', () => {
-    // Заполняем поля формы текущими значениями
     nameInput.value = profileName.textContent;
     jobInput.value = profileJob.textContent;
+    // Сбрасываем валидацию при открытии
+    resetProfileValidation();
     openModal(profilePopup);
 });
 
