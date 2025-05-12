@@ -1,6 +1,6 @@
 import {addCardRequest, updateProfileRequest, updateUserAvatar} from './api.js';
 import {createCard} from "./card.js";
-import {toggleAvatarButtonState, resetValidationErrors} from "./validate.js";
+import {toggleAvatarButtonState, resetValidationErrors, toggleCardButtonState} from "./validate.js";
 
 const profilePopup = document.querySelector('.popup_type_edit');
 const profileName = document.querySelector('.profile__title');
