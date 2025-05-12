@@ -18,6 +18,12 @@ const profileImage = document.querySelector('.profile__image');
 
 export function closeModal(popup) {
     popup.classList.remove('popup_is-opened');
+    document.removeEventListener('keydown', closeByEsc);
+
+    // Сбрасываем валидацию при закрытии
+    if (popup === cardPopup) {
+        resetCardFormValidation();
+    }
 }
 
 export function handleProfileFormSubmit(evt) {
@@ -77,7 +83,6 @@ export function handleCardFormSubmit(evt, currentUserId) {
     const link = cardLinkInput.value;
     const newCardData = { name, link };
 
-    // Блокируем кнопку на время отправки
     const submitButton = evt.target.querySelector('.popup__button');
     const originalText = submitButton.textContent;
     submitButton.disabled = true;
@@ -89,7 +94,7 @@ export function handleCardFormSubmit(evt, currentUserId) {
             const placesList = document.querySelector('.places__list');
             placesList.prepend(newCardElement);
             closeModal(cardPopup);
-            cardFormElement.reset();
+            resetCardFormValidation(); // Используем новую функцию
         })
         .catch((err) => {
             console.error('Ошибка при добавлении карточки:', err);
@@ -158,3 +163,19 @@ export function handleAvatarFormSubmit(evt) {
         });
 }
 
+export function resetCardFormValidation() {
+    cardFormElement.reset();
+    const errorElements = cardFormElement.querySelectorAll('.popup__error');
+    errorElements.forEach(errorElement => {
+        errorElement.textContent = '';
+    });
+
+    // Также сбрасываем стили ошибок у инпутов
+    const inputs = cardFormElement.querySelectorAll('.popup__input');
+    inputs.forEach(input => {
+        input.classList.remove('popup__input_type_error');
+    });
+
+    // Возвращаем кнопку в исходное состояние
+    toggleCardButtonState();
+}

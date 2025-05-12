@@ -2,7 +2,7 @@ import { getInitialCards, getUserInfo} from './api.js';
 import {renderCards} from "./card.js";
 import {toggleProfileButtonState, toggleCardButtonState, showCardInputError} from "./validate.js";
 import '../pages/index.css';
-import { handleProfileFormSubmit, openModal, closeModal, closeByEsc, handleCardFormSubmit, openPopup} from './modal.js';
+import { handleProfileFormSubmit, openModal, closeModal, closeByEsc, handleCardFormSubmit, openPopup,  resetCardFormValidation} from './modal.js';
 
 const profilePopup = document.querySelector('.popup_type_edit');
 const cardPopup = document.querySelector('.popup_type_new-card');
@@ -63,6 +63,7 @@ cardFormElement.addEventListener('submit', (evt) => {
 cardAddButton.addEventListener('click', () => {
     // Очищаем поля формы
     cardFormElement.reset();
+    resetCardFormValidation();
     toggleCardButtonState(); // Инициализация состояния кнопки
     openModal(cardPopup);
 });
@@ -87,6 +88,9 @@ document.querySelectorAll('.popup').forEach((popup) => {
 document.querySelectorAll('.popup__close').forEach((closeButton) => {
     closeButton.addEventListener('click', () => {
         const popup = closeButton.closest('.popup');
+        if (popup === cardPopup) {
+            resetCardFormValidation();
+        }
         closeModal(popup);
         document.removeEventListener('keydown', closeByEsc); // Убираем слушателя при закрытии поп-апа
     });

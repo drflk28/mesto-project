@@ -55,10 +55,22 @@ export function showCardInputError(inputElement) {
     if (errorElement) {
         if (!inputElement.validity.valid) {
             errorElement.textContent = inputElement.validationMessage;
+            inputElement.classList.add('popup__input_type_error');
         } else {
             errorElement.textContent = '';
+            inputElement.classList.remove('popup__input_type_error');
         }
-    } else {
-        console.error(`Элемент для отображения ошибки не найден: ${inputElement.name}`);
     }
+}
+
+export function resetValidationErrors(formElement) {
+    const errorElements = formElement.querySelectorAll('.popup__error');
+    errorElements.forEach(errorElement => {
+        errorElement.textContent = '';
+    });
+
+    const inputs = formElement.querySelectorAll('.popup__input');
+    inputs.forEach(input => {
+        input.classList.remove('popup__input_type_error');
+    });
 }
