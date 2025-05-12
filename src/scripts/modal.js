@@ -1,6 +1,6 @@
 import {addCardRequest, updateProfileRequest, updateUserAvatar} from './api.js';
-import {createCard} from "./card";
-import {toggleAvatarButtonState} from "./validate";
+import {createCard} from "./card.js";
+import {toggleAvatarButtonState, resetValidationErrors} from "./validate.js";
 
 const profilePopup = document.querySelector('.popup_type_edit');
 const profileName = document.querySelector('.profile__title');
@@ -24,6 +24,23 @@ export function closeModal(popup) {
     if (popup === cardPopup) {
         resetCardFormValidation();
     }
+}
+
+export function resetCardFormValidation() {
+    cardFormElement.reset();
+    const errorElements = cardFormElement.querySelectorAll('.popup__error');
+    errorElements.forEach(errorElement => {
+        errorElement.textContent = '';
+    });
+
+    // Также сбрасываем стили ошибок у инпутов
+    const inputs = cardFormElement.querySelectorAll('.popup__input');
+    inputs.forEach(input => {
+        input.classList.remove('popup__input_type_error');
+    });
+
+    // Возвращаем кнопку в исходное состояние
+    toggleCardButtonState();
 }
 
 export function handleProfileFormSubmit(evt) {
@@ -163,19 +180,3 @@ export function handleAvatarFormSubmit(evt) {
         });
 }
 
-export function resetCardFormValidation() {
-    cardFormElement.reset();
-    const errorElements = cardFormElement.querySelectorAll('.popup__error');
-    errorElements.forEach(errorElement => {
-        errorElement.textContent = '';
-    });
-
-    // Также сбрасываем стили ошибок у инпутов
-    const inputs = cardFormElement.querySelectorAll('.popup__input');
-    inputs.forEach(input => {
-        input.classList.remove('popup__input_type_error');
-    });
-
-    // Возвращаем кнопку в исходное состояние
-    toggleCardButtonState();
-}

@@ -1,8 +1,8 @@
 import { getInitialCards, getUserInfo} from './api.js';
 import {renderCards} from "./card.js";
-import {toggleProfileButtonState, toggleCardButtonState, showCardInputError} from "./validate.js";
+import {toggleProfileButtonState, toggleCardButtonState, showCardInputError, resetValidationErrors} from "./validate.js";
 import '../pages/index.css';
-import { handleProfileFormSubmit, openModal, closeModal, closeByEsc, handleCardFormSubmit, openPopup,  resetCardFormValidation} from './modal.js';
+import { handleProfileFormSubmit, openModal, closeModal, closeByEsc, handleCardFormSubmit, openPopup, resetCardFormValidation} from './modal.js';
 
 const profilePopup = document.querySelector('.popup_type_edit');
 const cardPopup = document.querySelector('.popup_type_new-card');
@@ -92,7 +92,6 @@ document.querySelectorAll('.popup__close').forEach((closeButton) => {
             resetCardFormValidation();
         }
         closeModal(popup);
-        document.removeEventListener('keydown', closeByEsc); // Убираем слушателя при закрытии поп-апа
     });
 });
 
