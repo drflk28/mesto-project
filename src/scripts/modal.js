@@ -26,6 +26,10 @@ export function closeModal(popup) {
     if (popup === profilePopup) {
         resetProfileValidation();
     }
+    if (popup === profilePopup) {
+        const form = popup.querySelector('.popup__form');
+        form.querySelector('.popup__button').textContent = 'Сохранить';
+    }
 }
 
 function toggleCardButtonState() {
@@ -58,20 +62,54 @@ export function resetCardFormValidation() {
 export function handleProfileFormSubmit(evt) {
     evt.preventDefault();
 
-    const updatedUserData = {
+    const form = evt.target;
+    const submitButton = form.querySelector('.popup__button');
+
+    // Сохраняем оригинальные значения
+    const originalValues = {
         name: nameInput.value,
         about: jobInput.value
     };
 
-    updateProfileRequest(updatedUserData)
+    // Блокировка формы
+    const disableForm = () => {
+        submitButton.disabled = true;
+        const formInputs = form.querySelectorAll('input, button, textarea');
+        formInputs.forEach(input => input.disabled = true);
+        form.style.pointerEvents = 'none';
+        form.style.opacity = '0.7';
+        submitButton.textContent = 'Сохранение...';
+    };
+
+    // Разблокировка формы
+    const enableForm = () => {
+        submitButton.disabled = false;
+        const formInputs = form.querySelectorAll('input, button, textarea');
+        formInputs.forEach(input => input.disabled = false);
+        form.style.pointerEvents = '';
+        form.style.opacity = '';
+        submitButton.textContent = 'Сохранить';
+    };
+
+    disableForm();
+
+    updateProfileRequest({
+        name: originalValues.name,
+        about: originalValues.about
+    })
         .then((userData) => {
             profileName.textContent = userData.name;
             profileJob.textContent = userData.about;
             closeModal(profilePopup);
         })
         .catch((err) => {
-            console.error('Ошибка при обновлении профиля:', err);
-            alert('Не удалось обновить профиль.');
+            console.error('Ошибка:', err);
+            // Восстанавливаем оригинальные значения
+            nameInput.value = originalValues.name;
+            jobInput.value = originalValues.about;
+        })
+        .finally(() => {
+            enableForm();
         });
 }
 
@@ -108,30 +146,37 @@ export function closeByEsc(evt) {
 export function handleCardFormSubmit(evt, currentUserId) {
     evt.preventDefault();
 
+    const form = evt.target;
+    const submitButton = form.querySelector('.popup__button');
+
+    submitButton.disabled = true;
+    const formInputs = form.querySelectorAll('input, button');
+    formInputs.forEach(input => input.disabled = true);
+    form.classList.add('popup__form_disabled');
+
+    const originalText = submitButton.textContent;
+    submitButton.textContent = 'Сохранение...';
+
     const name = cardNameInput.value;
     const link = cardLinkInput.value;
     const newCardData = { name, link };
 
-    const submitButton = evt.target.querySelector('.popup__button');
-    const originalText = submitButton.textContent;
-    submitButton.disabled = true;
-    submitButton.textContent = 'Сохранение...';
-
     addCardRequest(newCardData)
         .then((newCard) => {
             const newCardElement = createCard(newCard, currentUserId);
-            const placesList = document.querySelector('.places__list');
-            placesList.prepend(newCardElement);
+            document.querySelector('.places__list').prepend(newCardElement);
             closeModal(cardPopup);
-            resetCardFormValidation(); // Используем новую функцию
+            form.reset();  // Сброс формы
         })
         .catch((err) => {
-            console.error('Ошибка при добавлении карточки:', err);
-            alert('Не удалось добавить карточку. Попробуйте снова.');
+            console.error('Ошибка:', err);
         })
         .finally(() => {
+            // Разблокируем только после полного завершения
             submitButton.disabled = false;
             submitButton.textContent = originalText;
+            formInputs.forEach(input => input.disabled = false);
+            form.classList.remove('popup__form_disabled');
         });
 }
 
@@ -164,31 +209,46 @@ export function handleAvatarFormSubmit(evt) {
     evt.preventDefault();
     evt.stopPropagation();
 
+    const form = evt.target;
+    const submitButton = form.querySelector('.popup__button');
+
+    // Блокируем кнопку и все элементы формы
+    submitButton.disabled = true;
+    const formInputs = form.querySelectorAll('input, button');
+    formInputs.forEach(input => input.disabled = true);
+    form.classList.add('popup__form_disabled');
+
+    const originalText = submitButton.textContent;
+    submitButton.textContent = 'Сохранение...';
+
     const avatarUrl = avatarInput.value.trim();
+
+    // Проверка на пустую строку (перенесена после блокировки)
     if (!avatarUrl) {
+        // Разблокируем форму если URL пустой
+        submitButton.disabled = false;
+        submitButton.textContent = originalText;
+        formInputs.forEach(input => input.disabled = false);
+        form.classList.remove('popup__form_disabled');
         alert('Пожалуйста, введите ссылку на аватар.');
         return;
     }
-
-    // Блокируем кнопку на время отправки
-    const submitButton = evt.target.querySelector('.popup__button');
-    const originalText = submitButton.textContent;
-    submitButton.disabled = true;
-    submitButton.textContent = 'Сохранение...';
 
     updateUserAvatar(avatarUrl)
         .then((userData) => {
             profileImage.style.backgroundImage = `url(${userData.avatar})`;
             closeModal(avatarPopup);
-            avatarInput.value = '';
+            form.reset(); // Сбрасываем форму
         })
         .catch((err) => {
             console.error('Ошибка:', err);
-            alert(`Ошибка: ${err.message || 'Не удалось обновить аватар'}`);
         })
         .finally(() => {
+            // Восстанавливаем состояние формы в любом случае
             submitButton.disabled = false;
             submitButton.textContent = originalText;
+            formInputs.forEach(input => input.disabled = false);
+            form.classList.remove('popup__form_disabled');
         });
 }
 
